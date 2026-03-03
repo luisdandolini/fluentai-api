@@ -9,8 +9,8 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "outDir": "./dist",
-    "rootDir": "."
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*", "prisma.config.ts"]
 }

@@ -6,6 +6,7 @@
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+.yarnrc.yml
 
 # Dependencies
 node_modules
