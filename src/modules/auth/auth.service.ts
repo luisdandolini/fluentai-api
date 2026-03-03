@@ -126,10 +126,23 @@ export const authService = {
       }),
     ]);
 
-    const tokens = generateTokens({ sub: user.id, email: user.email });
-    const { password: _password, ...userWithoutPassword } = user;
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        verified: true,
+        onboarded: true,
+        language: true,
+        level: true,
+        createdAt: true,
+      },
+    });
 
-    return { user: { ...userWithoutPassword, verified: true }, ...tokens };
+    const tokens = generateTokens({ sub: user.id, email: user.email });
+
+    return { user: updatedUser, ...tokens };
   },
 
   async login({ email, password }: LoginDTO) {
@@ -150,9 +163,22 @@ export const authService = {
     }
 
     const tokens = generateTokens({ sub: user.id, email: user.email });
-    const { password: _password, ...userWithoutPassword } = user;
 
-    return { user: userWithoutPassword, ...tokens };
+    const safeUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        verified: true,
+        onboarded: true,
+        language: true,
+        level: true,
+        createdAt: true,
+      },
+    });
+
+    return { user: safeUser, ...tokens };
   },
 
   async refresh(refreshToken: string) {
