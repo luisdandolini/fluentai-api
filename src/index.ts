@@ -4,6 +4,8 @@ import type { Request, Response, NextFunction } from "express";
 import { authRouter } from "./modules/auth/auth.routes.ts";
 import { ZodError } from "zod";
 import cors from "cors";
+import { onboardingRouter } from "./modules/onboarding/onboarding.routes.ts";
+import { userRouter } from "./modules/user/user.routes.ts";
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -14,6 +16,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
+app.use("/api/onboarding", onboardingRouter);
+app.use("/api/users", userRouter);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
