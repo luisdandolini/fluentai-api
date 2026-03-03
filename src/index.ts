@@ -3,9 +3,12 @@ import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import { authRouter } from "./modules/auth/auth.routes.ts";
 import { ZodError } from "zod";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
+
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
