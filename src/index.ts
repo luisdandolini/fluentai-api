@@ -8,6 +8,8 @@ import { onboardingRouter } from "./modules/onboarding/onboarding.routes.ts";
 import { userRouter } from "./modules/user/user.routes.ts";
 import { lessonsRouter } from "./modules/lessons/lessons.routes.ts";
 import { chatRouter } from "./modules/chat/chat.routes.ts";
+import { AppError } from "./lib/errors.ts";
+import { errorHandler } from "./lib/errorHandler.ts";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -35,21 +37,7 @@ app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  if (err instanceof ZodError) {
-    res.status(400).json({
-      error: "Validation error",
-      details: err.issues.map((e) => ({
-        field: e.path.join("."),
-        message: e.message,
-      })),
-    });
-    return;
-  }
-
-  console.error(`[Error] ${err.message}`);
-  res.status(500).json({ error: err.message });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`FluentAI API running on http://localhost:${PORT}`);
