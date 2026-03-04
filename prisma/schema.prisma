@@ -14,6 +14,14 @@ enum Level {
   FLUENT
 }
 
+enum ExerciseType {
+  MULTIPLE_CHOICE
+  FILL_IN_THE_BLANK
+  TRANSLATE
+  FREE_WRITE
+  ORDER_WORDS
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -27,6 +35,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   verificationCodes VerificationCode[]
+  lessonProgress    UserLessonProgress[]
 
   @@map("users")
 }
@@ -42,4 +51,67 @@ model VerificationCode {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("verification_codes")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  language    String
+  level       Level
+  title       String
+  description String
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons Lesson[]
+
+  @@map("modules")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  moduleId    String
+  title       String
+  description String
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  module       Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  exercises    Exercise[]
+  userProgress UserLessonProgress[]
+
+  @@map("lessons")
+}
+
+model Exercise {
+  id        String       @id @default(cuid())
+  lessonId  String
+  type      ExerciseType
+  question  String
+  options   Json?
+  answer    String
+  order     Int
+  createdAt DateTime     @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("exercises")
+}
+
+model UserLessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean   @default(false)
+  score       Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("user_lesson_progress")
 }
