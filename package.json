@@ -12,7 +12,7 @@
     "migrate:prod": "dotenv -e .env -- prisma migrate deploy",
     "studio": "dotenv -e .env -- prisma studio",
     "db:generate": "prisma generate",
-    "seed": "dotenv -e .env -- tsx prisma/seed.ts"
+    "seed:generate": "dotenv -e .env -- tsx prisma/generate-seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.2",
