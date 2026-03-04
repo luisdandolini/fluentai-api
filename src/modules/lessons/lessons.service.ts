@@ -1,3 +1,4 @@
+import { AppError } from "../../lib/errors.ts";
 import { prisma } from "../../lib/prisma.ts";
 
 export const lessonsService = {
@@ -8,7 +9,7 @@ export const lessonsService = {
     });
 
     if (!user?.language || !user?.level) {
-      throw new Error("Usuário sem idioma ou nível definido");
+      throw new AppError("Usuário sem idioma ou nível definido");
     }
 
     const modules = await prisma.module.findMany({
@@ -62,7 +63,7 @@ export const lessonsService = {
       },
     });
 
-    if (!lesson) throw new Error("Lição não encontrada");
+    if (!lesson) throw new AppError("Lição não encontrada");
 
     return {
       ...lesson,
@@ -78,7 +79,7 @@ export const lessonsService = {
       include: { exercises: { select: { id: true, answer: true } } },
     });
 
-    if (!lesson) throw new Error("Lição não encontrada");
+    if (!lesson) throw new AppError("Lição não encontrada");
 
     const progress = await prisma.userLessonProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
@@ -127,7 +128,7 @@ export const lessonsService = {
       select: { answer: true, type: true },
     });
 
-    if (!exercise) throw new Error("Exercício não encontrado");
+    if (!exercise) throw new AppError("Exercício não encontrado");
 
     const correct =
       exercise.answer.trim().toLowerCase() === answer.trim().toLowerCase();

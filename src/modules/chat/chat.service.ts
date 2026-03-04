@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import { AppError } from "../../lib/errors.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -96,7 +97,9 @@ export const chatService = {
 
   async textToSpeech(text: string) {
     if (!text?.trim()) {
-      throw new Error("Text for TTS cannot be empty");
+      throw new AppError(
+        "O texto para conversão em fala (TTS) não pode estar vazio.",
+      );
     }
 
     const response = await groq.audio.speech.create({

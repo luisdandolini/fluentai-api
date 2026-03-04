@@ -1,3 +1,4 @@
+import { AppError } from "../../lib/errors.ts";
 import { prisma } from "../../lib/prisma.ts";
 
 export const userService = {
@@ -15,7 +16,7 @@ export const userService = {
       },
     });
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("Usuário não encontrado");
     return { user };
   },
 };
