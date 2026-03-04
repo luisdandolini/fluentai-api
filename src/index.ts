@@ -6,9 +6,11 @@ import { ZodError } from "zod";
 import cors from "cors";
 import { onboardingRouter } from "./modules/onboarding/onboarding.routes.ts";
 import { userRouter } from "./modules/user/user.routes.ts";
+import { lessonsRouter } from "./modules/lessons/lessons.routes.ts";
+import { chatRouter } from "./modules/chat/chat.routes.ts";
 
 const app = express();
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT;
 
 app.use(cors());
 
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRouter);
 app.use("/api/onboarding", onboardingRouter);
 app.use("/api/users", userRouter);
+app.use("/api/lessons", lessonsRouter);
+app.use("/api/chat", chatRouter);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
