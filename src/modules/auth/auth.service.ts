@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import type { SignOptions } from "jsonwebtoken";
 import { prisma } from "../../lib/prisma.ts";
 import { resend } from "../../lib/resend.ts";
+import { AppError } from "../../lib/errors.ts";
 
 interface RegisterDTO {
   name: string;
@@ -64,9 +65,7 @@ export const authService = {
   async register({ name, email, password }: RegisterDTO) {
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
-    if (existingUser) {
-      throw new Error("Email already in use");
-    }
+    if (existingUser) throw new AppError("Email já está em uso");
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -94,13 +93,9 @@ export const authService = {
   async verifyEmail(email: string, code: string) {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    if (!user) throw new AppError("Usuário não encontrado", 404);
 
-    if (user.verified) {
-      throw new Error("Email already verified");
-    }
+    if (user.verified) throw new AppError("Email já verificado");
 
     const verification = await prisma.verificationCode.findFirst({
       where: {
@@ -111,9 +106,7 @@ export const authService = {
       },
     });
 
-    if (!verification) {
-      throw new Error("Invalid or expired verification code");
-    }
+    if (!verification) throw new AppError("Código inválido ou expirado");
 
     await prisma.$transaction([
       prisma.verificationCode.update({
@@ -148,19 +141,17 @@ export const authService = {
   async login({ email, password }: LoginDTO) {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
+    if (!user) throw new AppError("E-mail ou senha incorretos", 401);
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
-    if (!passwordMatch) {
-      throw new Error("Invalid credentials");
-    }
+    if (!passwordMatch) throw new AppError("E-mail ou senha incorretos", 401);
 
-    if (!user.verified) {
-      throw new Error("Please verify your email before logging in");
-    }
+    if (!user.verified)
+      throw new AppError(
+        "Por favor verifique seu e-mail antes de fazer login",
+        401,
+      );
 
     const tokens = generateTokens({ sub: user.id, email: user.email });
 
@@ -189,9 +180,7 @@ export const authService = {
 
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    if (!user) throw new AppError("Usuário não encontrado", 404);
 
     const tokens = generateTokens({ sub: user.id, email: user.email });
 
