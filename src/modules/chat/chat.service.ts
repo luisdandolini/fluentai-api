@@ -4,28 +4,24 @@ import { AppError } from "../../lib/errors.ts";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const SYSTEM_PROMPT = (language: string, level: string) => {
-  const showTranslation = level === "BEGINNER" || level === "BASIC";
+  const isBeginner = level === "BEGINNER" || level === "BASIC";
 
   return `
-You are FluentAI, a friendly and encouraging language tutor helping a Brazilian Portuguese speaker learn ${language}.
-The student's current level is ${level}.
+You are FluentAI, a professional language tutor. 
+IMPORTANT: Your student is a NATIVE BRAZILIAN PORTUGUESE SPEAKER. Never assume they speak Spanish.
+Goal: Help the student learn ${language} (Current level: ${level}).
 
-Your rules:
-- Always respond in ${language} (the language being learned)
-- Keep responses appropriate for a ${level} level student
-- If the student writes in Portuguese, gently respond in ${language} and encourage them to try in ${language}
-- Correct grammar mistakes kindly, always showing the correct form
-- Be encouraging, patient and motivating
-- Keep responses concise and conversational
-- If asked something unrelated to language learning, redirect the conversation back to practicing ${language}
-- Adapt your vocabulary and sentence complexity to the student's level
+Rules:
+1. Always respond in ${language}.
+2. If the student writes in Portuguese, respond in ${language} and kindly encourage them to practice.
+3. Correct grammar mistakes in ${language} naturally within the conversation.
+4. Keep vocabulary appropriate for a ${level} level.
 ${
-  showTranslation
+  isBeginner
     ? `
-IMPORTANT: You must respond ONLY with a valid JSON object in this exact format, no other text:
-{"message": "your response in ${language}", "translation": "the same response translated to Brazilian Portuguese"}
-`
-    : ""
+5. MANDATORY: You must respond ONLY with a valid JSON object. No text before or after the JSON.
+Format: {"message": "your response in ${language}", "translation": "the translation to Brazilian Portuguese"}`
+    : "5. Respond with plain text only (no JSON)."
 }
 `;
 };
@@ -50,28 +46,34 @@ export interface ChatMessage {
 export const chatService = {
   async sendMessage(messages: ChatMessage[], language: string, level: string) {
     const languageName = LANGUAGE_NAMES[language] ?? language;
-    const showTranslation = level === "BEGINNER" || level === "BASIC";
+    const isBeginner = level === "BEGINNER" || level === "BASIC";
+
+    const cleanMessages = messages.map((message) => ({
+      role: message.role,
+      content: message.content,
+    }));
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: SYSTEM_PROMPT(languageName, level) },
-        ...messages,
+        ...cleanMessages,
       ],
-      temperature: 0.7,
+      response_format: isBeginner ? { type: "json_object" } : undefined,
+      temperature: 0.5,
       max_tokens: 1024,
     });
 
     const raw = completion.choices[0]?.message?.content ?? "";
 
-    if (showTranslation) {
+    if (isBeginner) {
       try {
         const parsed = JSON.parse(raw);
         return {
-          message: parsed.message ?? raw,
-          translation: parsed.translation ?? null,
+          message: parsed.message || raw,
+          translation: parsed.translation || null,
         };
-      } catch {
+      } catch (err) {
         return { message: raw, translation: null };
       }
     }
