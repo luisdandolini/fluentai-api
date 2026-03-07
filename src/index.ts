@@ -40,5 +40,5 @@ app.use((_req: Request, res: Response) => {
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`FluentAI API running on http://localhost:${PORT}`);
+  console.log(`FluentAI API! running on http://localhost:${PORT}`);
 });
