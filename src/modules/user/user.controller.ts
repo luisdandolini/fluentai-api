@@ -106,4 +106,15 @@ export const userController = {
       next(err);
     }
   },
+
+  async updateSettings(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.sub;
+      const { language, level } = req.body;
+      const result = await userService.updateSettings(userId, language, level);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  },
 };
