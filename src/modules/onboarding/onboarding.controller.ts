@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { onboardingService } from "./onboarding.service.ts";
+import { onboardingService } from "./onboarding.service.js";
 
 export const onboardingController = {
   async complete(req: Request, res: Response, next: NextFunction) {

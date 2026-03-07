@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { lessonsService } from "./lessons.service.ts";
+import { lessonsService } from "./lessons.service.js";
 
 export const lessonsController = {
   async getModules(req: Request, res: Response, next: NextFunction) {

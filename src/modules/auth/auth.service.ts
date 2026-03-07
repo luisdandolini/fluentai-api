@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { SignOptions } from "jsonwebtoken";
-import { prisma } from "../../lib/prisma.ts";
-import { resend } from "../../lib/resend.ts";
-import { AppError } from "../../lib/errors.ts";
+import { prisma } from "../../lib/prisma.js";
+import { resend } from "../../lib/resend.js";
+import { AppError } from "../../lib/errors.js";
 
 interface RegisterDTO {
   name: string;

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import { chatService } from "./chat.service.ts";
-import { prisma } from "../../lib/prisma.ts";
+import { chatService } from "./chat.service.js";
+import { prisma } from "../../lib/prisma.js";
 
 export const chatController = {
   async sendMessage(req: Request, res: Response, next: NextFunction) {

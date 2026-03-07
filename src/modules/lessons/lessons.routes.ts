@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authenticate } from "../auth/auth.middleware.ts";
-import { lessonsController } from "./lessons.controller.ts";
+import { authenticate } from "../auth/auth.middleware.js";
+import { lessonsController } from "./lessons.controller.js";
 
 export const lessonsRouter = Router();
 

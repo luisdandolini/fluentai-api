@@ -1,15 +1,15 @@
 import "dotenv/config";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
-import { authRouter } from "./modules/auth/auth.routes.ts";
+import { authRouter } from "./modules/auth/auth.routes.js";
 import { ZodError } from "zod";
 import cors from "cors";
-import { onboardingRouter } from "./modules/onboarding/onboarding.routes.ts";
-import { userRouter } from "./modules/user/user.routes.ts";
-import { lessonsRouter } from "./modules/lessons/lessons.routes.ts";
-import { chatRouter } from "./modules/chat/chat.routes.ts";
-import { AppError } from "./lib/errors.ts";
-import { errorHandler } from "./lib/errorHandler.ts";
+import { onboardingRouter } from "./modules/onboarding/onboarding.routes.js";
+import { userRouter } from "./modules/user/user.routes.js";
+import { lessonsRouter } from "./modules/lessons/lessons.routes.js";
+import { chatRouter } from "./modules/chat/chat.routes.js";
+import { AppError } from "./lib/errors.js";
+import { errorHandler } from "./lib/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT;

@@ -1,5 +1,5 @@
-import { AppError } from "../../lib/errors.ts";
-import { prisma } from "../../lib/prisma.ts";
+import { AppError } from "../../lib/errors.js";
+import { prisma } from "../../lib/prisma.js";
 
 export const lessonsService = {
   async getModules(userId: string) {

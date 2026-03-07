@@ -1,5 +1,5 @@
 import Groq from "groq-sdk";
-import { AppError } from "../../lib/errors.ts";
+import { AppError } from "../../lib/errors.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 

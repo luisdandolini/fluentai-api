@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { onboardingController } from "./onboarding.controller.ts";
-import { authenticate } from "../auth/auth.middleware.ts";
+import { onboardingController } from "./onboarding.controller.js";
+import { authenticate } from "../auth/auth.middleware.js";
 
 export const onboardingRouter = Router();
 

@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
-import { authService } from "./auth.service.ts";
+import { authService } from "./auth.service.js";
 import {
   registerSchema,
   loginSchema,
   verifySchema,
   refreshSchema,
-} from "../../lib/validation.ts";
+} from "../../lib/validation.js";
 
 export const authController = {
   async register(req: Request, res: Response, next: NextFunction) {

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authenticate } from "../auth/auth.middleware.ts";
-import { chatController } from "./chat.controller.ts";
+import { authenticate } from "../auth/auth.middleware.js";
+import { chatController } from "./chat.controller.js";
 import multer from "multer";
 
 export const chatRouter = Router();

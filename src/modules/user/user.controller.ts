@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import { userService } from "./user.service.ts";
-import { prisma } from "../../lib/prisma.ts";
+import { userService } from "./user.service.js";
+import { prisma } from "../../lib/prisma.js";
 
 export const userController = {
   async me(req: Request, res: Response, next: NextFunction) {
