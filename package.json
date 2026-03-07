@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "dotenv -e .env -- tsx watch --ignore './node_modules/**' --ignore './.prisma/**' src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "prisma migrate deploy && node dist/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "migrate": "dotenv -e .env -- prisma migrate dev",
