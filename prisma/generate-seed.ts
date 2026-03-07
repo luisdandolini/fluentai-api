@@ -25,14 +25,6 @@ const LEVELS = [
   { code: Level.FLUENT, name: "Fluent" },
 ];
 
-const EXERCISE_TYPES = [
-  "MULTIPLE_CHOICE",
-  "FILL_IN_THE_BLANK",
-  "TRANSLATE",
-  "FREE_WRITE",
-  "ORDER_WORDS",
-];
-
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const buildPrompt = (
@@ -198,7 +190,7 @@ const insertModules = async (
 };
 
 const main = async () => {
-  const TARGET_LANGUAGE = "es";
+  const TARGET_LANGUAGE = "it";
 
   console.log(`🚀 Gerando seed para: ${TARGET_LANGUAGE.toUpperCase()}\n`);
 
@@ -296,10 +288,10 @@ main()
     await prisma.$disconnect();
   });
 
-//   Amanhã:    es → yarn seed:generate (TARGET_LANGUAGE = "es")
-// Dia 3:     fr → yarn seed:generate (TARGET_LANGUAGE = "fr")
-// Dia 4:     de → yarn seed:generate (TARGET_LANGUAGE = "de")
-// Dia 5:     it → yarn seed:generate (TARGET_LANGUAGE = "it")
+//   Amanhã:    es → yarn seed:generate (TARGET_LANGUAGE = "es") => feito
+// Dia 3:     fr → yarn seed:generate (TARGET_LANGUAGE = "fr") => feito
+// Dia 4:     de → yarn seed:generate (TARGET_LANGUAGE = "de") => feito
+// Dia 5:     it → yarn seed:generate (TARGET_LANGUAGE = "it") =>
 // Dia 6:     ja → yarn seed:generate (TARGET_LANGUAGE = "ja")
 // Dia 7:     zh → yarn seed:generate (TARGET_LANGUAGE = "zh")
 // Dia 8:     pt → yarn seed:generate (TARGET_LANGUAGE = "pt")
