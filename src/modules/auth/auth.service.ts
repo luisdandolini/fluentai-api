@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { SignOptions } from "jsonwebtoken";
 import { prisma } from "../../lib/prisma.js";
-import { mailer } from "../../lib/mailer.js";
+import { resend } from "../../lib/resend.js";
 import { AppError } from "../../lib/errors.js";
 
 interface RegisterDTO {
@@ -51,8 +51,8 @@ const sendVerificationEmail = async (
   name: string,
   code: string,
 ) => {
-  await mailer.sendMail({
-    from: `FluentAI <${process.env.GMAIL_USER}>`,
+  await resend.emails.send({
+    from: "FluentAI <onboarding@resend.dev>",
     to: email,
     subject: "FluentAI — Verifique seu email",
     html: `
@@ -69,8 +69,8 @@ const sendVerificationEmail = async (
 };
 
 const sendResetEmail = async (email: string, code: string) => {
-  await mailer.sendMail({
-    from: `FluentAI <${process.env.GMAIL_USER}>`,
+  await resend.emails.send({
+    from: "FluentAI <onboarding@resend.dev>",
     to: email,
     subject: "FluentAI — Redefinir senha",
     html: `
