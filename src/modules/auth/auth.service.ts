@@ -46,27 +46,27 @@ const generateTokens = (payload: TokenPayload) => {
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
-const sendVerificationEmail = async (
-  email: string,
-  name: string,
-  code: string,
-) => {
-  await resend.emails.send({
-    from: "FluentAI <onboarding@resend.dev>",
-    to: email,
-    subject: "FluentAI — Verifique seu email",
-    html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2>Olá, ${name}!</h2>
-        <p>Use o código abaixo para verificar seu email:</p>
-        <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 24px; background: #f4f4f4; border-radius: 8px;">
-          ${code}
-        </div>
-        <p style="color: #666; font-size: 14px;">Este código expira em 15 minutos.</p>
-      </div>
-    `,
-  });
-};
+// const sendVerificationEmail = async (
+//   email: string,
+//   name: string,
+//   code: string,
+// ) => {
+//   await resend.emails.send({
+//     from: "FluentAI <onboarding@resend.dev>",
+//     to: email,
+//     subject: "FluentAI — Verifique seu email",
+//     html: `
+//       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+//         <h2>Olá, ${name}!</h2>
+//         <p>Use o código abaixo para verificar seu email:</p>
+//         <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 24px; background: #f4f4f4; border-radius: 8px;">
+//           ${code}
+//         </div>
+//         <p style="color: #666; font-size: 14px;">Este código expira em 15 minutos.</p>
+//       </div>
+//     `,
+//   });
+// };
 
 const sendResetEmail = async (email: string, code: string) => {
   await resend.emails.send({
@@ -87,28 +87,52 @@ const sendResetEmail = async (email: string, code: string) => {
 };
 
 export const authService = {
+  // 2FA
+  // async register({ name, email, password }: RegisterDTO) {
+  //   const existingUser = await prisma.user.findUnique({ where: { email } });
+  //   if (existingUser) throw new AppError("Email já está em uso");
+
+  //   const hashedPassword = await bcrypt.hash(password, 12);
+  //   const user = await prisma.user.create({
+  //     data: { name, email, password: hashedPassword },
+  //     select: { id: true, name: true, email: true, createdAt: true },
+  //   });
+
+  //   const code = generateVerificationCode();
+  //   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  //   await prisma.verificationCode.create({
+  //     data: { userId: user.id, code, expiresAt },
+  //   });
+
+  //   await sendVerificationEmail(email, name, code);
+  //   return {
+  //     user,
+  //     message:
+  //       "Registration successful! Please check your email to verify your account.",
+  //   };
+  // },
+
   async register({ name, email, password }: RegisterDTO) {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) throw new AppError("Email já está em uso");
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword },
-      select: { id: true, name: true, email: true, createdAt: true },
+      data: { name, email, password: hashedPassword, verified: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        verified: true,
+        onboarded: true,
+        language: true,
+        level: true,
+        createdAt: true,
+      },
     });
 
-    const code = generateVerificationCode();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await prisma.verificationCode.create({
-      data: { userId: user.id, code, expiresAt },
-    });
-
-    await sendVerificationEmail(email, name, code);
-    return {
-      user,
-      message:
-        "Registration successful! Please check your email to verify your account.",
-    };
+    const tokens = generateTokens({ sub: user.id, email: user.email });
+    return { user, ...tokens };
   },
 
   async verifyEmail(email: string, code: string) {
