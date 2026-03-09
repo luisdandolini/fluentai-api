@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { SignOptions } from "jsonwebtoken";
 import { prisma } from "../../lib/prisma.js";
-import { resend } from "../../lib/resend.js";
+// import { resend } from "../../lib/resend.js";
 import { AppError } from "../../lib/errors.js";
 
 interface RegisterDTO {
@@ -43,8 +43,8 @@ const generateTokens = (payload: TokenPayload) => {
   return { accessToken, refreshToken };
 };
 
-const generateVerificationCode = () =>
-  Math.floor(100000 + Math.random() * 900000).toString();
+// const generateVerificationCode = () =>
+//   Math.floor(100000 + Math.random() * 900000).toString();
 
 // const sendVerificationEmail = async (
 //   email: string,
@@ -68,23 +68,23 @@ const generateVerificationCode = () =>
 //   });
 // };
 
-const sendResetEmail = async (email: string, code: string) => {
-  await resend.emails.send({
-    from: "FluentAI <onboarding@resend.dev>",
-    to: email,
-    subject: "FluentAI — Redefinir senha",
-    html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2>Redefinição de senha</h2>
-        <p>Use o código abaixo para redefinir sua senha:</p>
-        <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 24px; background: #f4f4f4; border-radius: 8px;">
-          ${code}
-        </div>
-        <p style="color: #666; font-size: 14px;">Este código expira em 15 minutos.</p>
-      </div>
-    `,
-  });
-};
+// const sendResetEmail = async (email: string, code: string) => {
+//   await resend.emails.send({
+//     from: "FluentAI <onboarding@resend.dev>",
+//     to: email,
+//     subject: "FluentAI — Redefinir senha",
+//     html: `
+//       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+//         <h2>Redefinição de senha</h2>
+//         <p>Use o código abaixo para redefinir sua senha:</p>
+//         <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 24px; background: #f4f4f4; border-radius: 8px;">
+//           ${code}
+//         </div>
+//         <p style="color: #666; font-size: 14px;">Este código expira em 15 minutos.</p>
+//       </div>
+//     `,
+//   });
+// };
 
 export const authService = {
   // 2FA
@@ -216,52 +216,73 @@ export const authService = {
     return generateTokens({ sub: user.id, email: user.email });
   },
 
+  // COM 2FA
+  // async resetPassword({ email }: ResetPasswordDTO) {
+  //   const user = await prisma.user.findUnique({ where: { email } });
+  //   if (!user)
+  //     return { message: "Se este email existir, você receberá um código." };
+
+  //   await prisma.verificationCode.updateMany({
+  //     where: { userId: user.id, type: "password_reset", used: false },
+  //     data: { used: true },
+  //   });
+
+  //   const code = generateVerificationCode();
+  //   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  //   await prisma.verificationCode.create({
+  //     data: { userId: user.id, code, expiresAt, type: "password_reset" },
+  //   });
+
+  //   await sendResetEmail(email, code);
+  //   return { message: "Se este email existir, você receberá um código." };
+  // },
+
   async resetPassword({ email }: ResetPasswordDTO) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user)
-      return { message: "Se este email existir, você receberá um código." };
-
-    await prisma.verificationCode.updateMany({
-      where: { userId: user.id, type: "password_reset", used: false },
-      data: { used: true },
-    });
-
-    const code = generateVerificationCode();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await prisma.verificationCode.create({
-      data: { userId: user.id, code, expiresAt, type: "password_reset" },
-    });
-
-    await sendResetEmail(email, code);
-    return { message: "Se este email existir, você receberá um código." };
+    if (!user) throw new AppError("Usuário não encontrado", 404);
+    return { message: "Email encontrado!", email };
   },
 
-  async confirmReset({ email, code, newPassword }: ConfirmPasswordDTO) {
+  // COM 2 FA
+  // async confirmReset({ email, code, newPassword }: ConfirmPasswordDTO) {
+  //   const user = await prisma.user.findUnique({ where: { email } });
+  //   if (!user) throw new AppError("Usuário não encontrado", 404);
+
+  //   const verification = await prisma.verificationCode.findFirst({
+  //     where: {
+  //       userId: user.id,
+  //       code,
+  //       used: false,
+  //       type: "password_reset",
+  //       expiresAt: { gt: new Date() },
+  //     },
+  //   });
+  //   if (!verification) throw new AppError("Código inválido ou expirado");
+
+  //   const hashed = await bcrypt.hash(newPassword, 12);
+  //   await prisma.$transaction([
+  //     prisma.verificationCode.update({
+  //       where: { id: verification.id },
+  //       data: { used: true },
+  //     }),
+  //     prisma.user.update({
+  //       where: { id: user.id },
+  //       data: { password: hashed },
+  //     }),
+  //   ]);
+
+  //   return { message: "Senha atualizada com sucesso!" };
+  // },
+
+  async confirmReset({ email, newPassword }: Omit<ConfirmPasswordDTO, "code">) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new AppError("Usuário não encontrado", 404);
 
-    const verification = await prisma.verificationCode.findFirst({
-      where: {
-        userId: user.id,
-        code,
-        used: false,
-        type: "password_reset",
-        expiresAt: { gt: new Date() },
-      },
-    });
-    if (!verification) throw new AppError("Código inválido ou expirado");
-
     const hashed = await bcrypt.hash(newPassword, 12);
-    await prisma.$transaction([
-      prisma.verificationCode.update({
-        where: { id: verification.id },
-        data: { used: true },
-      }),
-      prisma.user.update({
-        where: { id: user.id },
-        data: { password: hashed },
-      }),
-    ]);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashed },
+    });
 
     return { message: "Senha atualizada com sucesso!" };
   },
